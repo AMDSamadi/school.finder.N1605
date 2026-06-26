@@ -186,6 +186,8 @@ button:hover{
 }
 
 .info-box{
+    text-align:center;
+    line-height:1.6;
 
     background:#ffffff;
 
@@ -208,7 +210,7 @@ button:hover{
     text-align:center;
     color:#081C3A;
     font-size:17px;
-    margin-bottom:8px;
+    margin-bottom:3px;
 }
 
 .neighbors{
