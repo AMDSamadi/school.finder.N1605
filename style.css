@@ -243,3 +243,32 @@ footer{
     background:#D4AF37;
     color:#081C3A;
 }
+.neighbors {
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.neighbor-btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #081C3A;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.neighbor-btn:hover {
+    background-color: #D4AF37;
+    color: #081C3A;
+    transform: translateY(-1px);
+}
+
+.neighbor-btn:active {
+    transform: translateY(1px);
+}
