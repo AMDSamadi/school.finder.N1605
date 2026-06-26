@@ -204,9 +204,11 @@ button:hover{
 }
 
 .info-box strong{
-
+    display:block;
+    text-align:center;
     color:#081C3A;
-
+    font-size:17px;
+    margin-bottom:8px;
 }
 
 .neighbors{
