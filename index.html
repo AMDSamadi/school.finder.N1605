@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>سامانه جستجوی مدارس ناحیه پنج مشهد</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <img src="logo.png" alt="لوگوی آموزش و پرورش" class="logo">
+
+        <h1>اداره آموزش و پرورش ناحیه پنج مشهد مقدس</h1>
+
+        <h2>معاونت آموزش بنیادین ابتدایی</h2>
+
+        <div class="search-box">
+
+            <div class="form-group">
+                <label>جنسیت مدرسه</label>
+
+                <select id="gender">
+                    <option value="">انتخاب کنید</option>
+                    <option value="پسرانه">پسرانه</option>
+                    <option value="دخترانه">دخترانه</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>پایه تحصیلی</label>
+
+                <select id="grade">
+                    <option value="">انتخاب کنید</option>
+
+                    <option value="1">اول</option>
+                    <option value="2">دوم</option>
+                    <option value="3">سوم</option>
+
+                    <option value="4">چهارم</option>
+                    <option value="5">پنجم</option>
+                    <option value="6">ششم</option>
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>نام کوچه</label>
+
+                <input
+                    type="text"
+                    id="street"
+                    placeholder="مثال: نبوت">
+            </div>
+
+            <div class="form-group">
+                <label>شماره کوچه</label>
+
+                <input
+                    type="number"
+                    id="number"
+                    placeholder="مثال: 45">
+            </div>
+
+            <button id="searchBtn">
+                🔍 جستجوی مدرسه
+            </button>
+
+        </div>
+
+        <div id="result"></div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
