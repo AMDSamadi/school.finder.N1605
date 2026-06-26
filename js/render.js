@@ -75,7 +75,7 @@ function createCard(school){
 
         <div class="info-box">
 
-            <strong>🕒 شیفت</strong>
+            <strong>🕒 نوبت</strong>
 
             <br>
 
