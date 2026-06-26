@@ -1,6 +1,5 @@
 // ======================================
-// School Finder
-// Version 5.0
+// School Finder v6
 // ======================================
 
 let schools = [];
@@ -13,74 +12,82 @@ const numberInput = document.getElementById("number");
 const resultBox = document.getElementById("result");
 const searchBtn = document.getElementById("searchBtn");
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", init);
+
+async function init(){
 
     await loadSchools();
 
     searchBtn.addEventListener("click", searchSchool);
 
-    [genderInput, gradeInput, streetInput, numberInput].forEach(item => {
+    [genderInput,gradeInput,streetInput,numberInput].forEach(item=>{
 
-        item.addEventListener("keydown", e => {
+        item.addEventListener("keydown",e=>{
 
-            if (e.key === "Enter")
+            if(e.key==="Enter")
                 searchSchool();
 
         });
 
     });
 
-});
+}
 
-async function loadSchools() {
+async function loadSchools(){
 
-    try {
+    try{
 
-        const response = await fetch("schools.json");
+        const response=await fetch("schools.json");
 
-        if (!response.ok)
-            throw new Error("خطا در بارگذاری فایل");
+        if(!response.ok){
 
-        schools = await response.json();
+            throw new Error("خطا در خواندن فایل schools.json");
 
-        console.log("Schools:", schools.length);
+        }
+
+        schools=await response.json();
+
+        console.log("Schools:",schools.length);
 
     }
 
-    catch (err) {
+    catch(error){
 
-        console.error(err);
+        console.error(error);
 
-        resultBox.innerHTML = `
+        resultBox.innerHTML=`
         <div class="not-found">
-        خطا در بارگذاری اطلاعات مدارس
+            خطا در بارگذاری اطلاعات مدارس
         </div>`;
 
     }
 
 }
 
-function normalize(text) {
+function normalize(text){
 
-    if (!text) return "";
+    if(text===undefined || text===null)
+        return "";
 
     return String(text)
 
-        .replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
-        .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+        .replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+        .replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))
 
-        .replace(/ي/g, "ی")
-        .replace(/ك/g, "ک")
+        .replace(/ي/g,"ی")
+        .replace(/ك/g,"ک")
 
-        .replace(/بابانظر/g, "بابا نظر")
-        .replace(/ابرهیم/g, "ابراهیم")
-        .replace(/اسماعیلپور/g, "اسماعیل پور")
-        .replace(/میرزاکوچک/g, "میرزا کوچک")
-        .replace(/صاحبالزمان/g, "صاحب الزمان")
+        .replace(/بابانظر/g,"بابا نظر")
+        .replace(/ابرهیم/g,"ابراهیم")
+        .replace(/اسماعیلپور/g,"اسماعیل پور")
+        .replace(/میرزاکوچک/g,"میرزا کوچک")
+        .replace(/صاحبالزمان/g,"صاحب الزمان")
 
-        .replace(/[()]/g, "")
-        .replace(/\u200c/g, " ")
-        .replace(/\s+/g, " ")
+        .replace(/[()]/g,"")
+
+        .replace(/\u200c/g," ")
+
+        .replace(/\s+/g," ")
 
         .trim();
 
@@ -88,7 +95,7 @@ function normalize(text) {
 
 function getLevel(grade){
 
-    grade = Number(grade);
+    grade=Number(grade);
 
     if(grade>=1 && grade<=3)
         return "اول";
@@ -110,8 +117,11 @@ function getStreetList(school){
 
             const value=school[key];
 
-            if(value)
+            if(value){
+
                 list.push(normalize(value));
+
+            }
 
         }
 
@@ -135,7 +145,7 @@ function searchSchool(){
 
         resultBox.innerHTML=`
         <div class="not-found">
-        لطفاً همه اطلاعات را وارد کنید.
+            لطفاً تمام اطلاعات را وارد کنید.
         </div>`;
 
         return;
@@ -175,7 +185,7 @@ function searchSchool(){
 
         resultBox.innerHTML=`
         <div class="not-found">
-        مدرسه‌ای برای این محدوده یافت نشد.
+            مدرسه‌ای برای این محدوده یافت نشد.
         </div>`;
 
         return;
@@ -185,7 +195,7 @@ function searchSchool(){
     resultBox.innerHTML=`
         <div style="
             background:#0d6efd;
-            color:white;
+            color:#fff;
             padding:12px;
             border-radius:12px;
             margin-bottom:20px;
@@ -220,13 +230,13 @@ function createCard(school){
     let neighborsHtml="";
 
     const adjacent=String(
-        school["مدارس مجاور"]||""
+        school["مدارس مجاور"] || ""
     );
 
     adjacent
         .split("\n")
         .map(x=>x.trim())
-        .filter(x=>x.length>0)
+        .filter(x=>x!=="")
         .forEach(name=>{
 
             neighborsHtml+=`
@@ -278,45 +288,47 @@ function createCard(school){
 
 }
 
-function showNeighbor(name, gender){
+function normalizeSchoolName(name){
 
-    const target = normalize(name);
+    return normalize(name)
+        .replace(/[()]/g,"")
+        .replace(/\s+/g," ")
+        .trim();
 
-    const school = schools.find(item => {
+}
 
-        const schoolName = normalize(item["نام مدرسه"]);
-        const schoolGender = normalize(item["جنسیت"]);
+function findNeighbor(name,gender){
+
+    const targetName=normalizeSchoolName(name);
+    const targetGender=normalize(gender);
+
+    return schools.find(item=>{
+
+        const schoolName=normalizeSchoolName(item["نام مدرسه"]);
+        const schoolGender=normalize(item["جنسیت"]);
 
         return (
-            schoolName === target &&
-            schoolGender === normalize(gender)
+            schoolName===targetName &&
+            schoolGender===targetGender
         );
 
     });
 
-    if(!school){
-        alert("اطلاعات این مدرسه پیدا نشد.");
-        return;
-    }
-
-    resultBox.innerHTML = createCard(school);
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-
 }
 
-            return;
+function showNeighbor(name,gender){
 
-        }
+    const school=findNeighbor(name,gender);
 
-        alert("اطلاعات این مدرسه در فایل یافت نشد.");
+    if(!school){
+
+        alert("اطلاعات این مدرسه یافت نشد.");
 
         return;
 
     }
+
+    currentSchool=school;
 
     resultBox.innerHTML=createCard(school);
 
@@ -324,49 +336,5 @@ function showNeighbor(name, gender){
         top:0,
         behavior:"smooth"
     });
-
-}
-function normalizeSchoolName(name){
-
-    return normalize(name)
-        .replace(/\(س\)/g,"س")
-        .replace(/\(ع\)/g,"ع")
-        .replace(/\(عج\)/g,"عج")
-        .replace(/\(ره\)/g,"ره")
-        .replace(/\s+/g," ")
-        .trim();
-
-}
-
-function findSchoolByName(name,gender){
-
-    const targetName = normalizeSchoolName(name);
-    const targetGender = normalize(gender);
-
-    // جستجوی دقیق
-    let school = schools.find(item => {
-
-        return normalizeSchoolName(item["نام مدرسه"]) === targetName &&
-               normalize(item["جنسیت"]) === targetGender;
-
-    });
-
-    if(school)
-        return school;
-
-    // جستجوی تقریبی
-    school = schools.find(item => {
-
-        const schoolName = normalizeSchoolName(item["نام مدرسه"]);
-
-        return (
-            schoolName.includes(targetName) ||
-            targetName.includes(schoolName)
-        ) &&
-        normalize(item["جنسیت"]) === targetGender;
-
-    });
-
-    return school || null;
 
 }
