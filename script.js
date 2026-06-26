@@ -1,6 +1,7 @@
-// ======================================
-// School Finder - Version 3
-// ======================================
+// =======================================
+// School Finder
+// Version 4.0
+// =======================================
 
 let schools = [];
 
@@ -39,11 +40,11 @@ async function loadSchools(){
         const response=await fetch("schools.json");
 
         if(!response.ok)
-            throw new Error("خطا در بارگذاری اطلاعات مدارس");
+            throw new Error("خطا در بارگذاری فایل مدارس");
 
         schools=await response.json();
 
-        console.log("Loaded:",schools.length);
+        console.log("Schools Loaded:",schools.length);
 
     }
 
@@ -53,7 +54,7 @@ async function loadSchools(){
 
         resultBox.innerHTML=`
         <div class="not-found">
-        خطا در بارگذاری اطلاعات مدارس
+            خطا در بارگذاری اطلاعات مدارس
         </div>`;
 
     }
@@ -80,7 +81,6 @@ function normalize(text){
         .replace(/میرزاکوچک/g,"میرزا کوچک")
 
         .replace(/\u200c/g," ")
-
         .replace(/\r/g," ")
         .replace(/\n/g," ")
 
@@ -114,30 +114,14 @@ function getLevel(grade){
 
 }
 
-function isInStreetList(streets,address,street){
+function isInStreetList(streets,address){
 
     if(!Array.isArray(streets))
         return false;
 
-    for(const item of streets){
+    address=normalize(address);
 
-        const value=normalize(item);
-
-        if(address){
-
-            if(value===address)
-                return true;
-
-        }else{
-
-            if(value.startsWith(street+" "))
-                return true;
-
-        }
-
-    }
-
-    return false;
+    return streets.some(item=>normalize(item)===address);
 
 }
 
@@ -151,11 +135,11 @@ function searchSchool(){
 
     const number=normalize(numberInput.value);
 
-    if(!gender || !level || !street){
+    if(!gender || !level || !street || !number){
 
         resultBox.innerHTML=`
         <div class="not-found">
-        لطفاً اطلاعات را کامل وارد کنید.
+            لطفاً تمام اطلاعات را وارد کنید.
         </div>`;
 
         return;
@@ -176,21 +160,9 @@ function searchSchool(){
 
         let found=false;
 
-        // جستجوی دقیق در لیست کوچه‌ها
-        found=isInStreetList(
-            school.streets,
-            address,
-            street
-        );
+        if(isInStreetList(school.streets,address)){
 
-        // اگر پیدا نشد، محدوده ثبت نام بررسی شود
-        if(!found && school.region && number){
-
-            found=isInRegion(
-                school.region,
-                street,
-                Number(number)
-            );
+            found=true;
 
         }
 
@@ -234,126 +206,55 @@ function searchSchool(){
 
 }
 
-// ======================
-// بررسی محدوده ثبت نام
-// ======================
-
-function isInRegion(region,street,number){
-
-    region=normalize(region);
-    street=normalize(street);
-
-    const parts=region.split("/");
-
-    for(const part of parts){
-
-        const item=normalize(part);
-
-        if(!item.startsWith(street))
-            continue;
-
-        // تمام فردها
-        if(item.includes("تمام فرد")){
-
-            return number%2===1;
-
-        }
-
-        // تمام زوج‌ها
-        if(item.includes("تمام زوج")){
-
-            return number%2===0;
-
-        }
-
-        // زوج X تا Y
-        let m=item.match(/زوج\s*(\d+)\s*(?:تا|الی)\s*(\d+)/);
-
-        if(m){
-
-            const start=Number(m[1]);
-            const end=Number(m[2]);
-
-            if(number%2===0 && number>=start && number<=end)
-                return true;
-
-        }
-
-        // فرد X تا Y
-        m=item.match(/فرد\s*(\d+)\s*(?:تا|الی)\s*(\d+)/);
-
-        if(m){
-
-            const start=Number(m[1]);
-            const end=Number(m[2]);
-
-            if(number%2===1 && number>=start && number<=end)
-                return true;
-
-        }
-
-        // زوج X الی آخر
-        m=item.match(/زوج\s*(\d+)\s*الی\s*آخر/);
-
-        if(m){
-
-            const start=Number(m[1]);
-
-            if(number%2===0 && number>=start)
-                return true;
-
-        }
-
-        // فرد X الی آخر
-        m=item.match(/فرد\s*(\d+)\s*الی\s*آخر/);
-
-        if(m){
-
-            const start=Number(m[1]);
-
-            if(number%2===1 && number>=start)
-                return true;
-
-        }
-
-    }
-
-    return false;
-
-}
-
 function createCard(school){
 
-    const cardClass =
-        school.gender==="پسرانه" ? "boys" : "girls";
+    const cardClass=
+        school.gender==="پسرانه"
+        ?"boys"
+        :"girls";
 
-    const emoji =
-        school.gender==="پسرانه" ? "👦" : "🧕";
+    const emoji=
+        school.gender==="پسرانه"
+        ?"👦"
+        :"🧕";
 
     let neighborsHtml="";
 
-    if(school.adjacent){
+    if(Array.isArray(school.adjacent)){
 
-        const neighbors=school.adjacent
-            .split("\n")
-            .map(x=>x.trim())
-            .filter(x=>x!=="");
-
-        neighbors.forEach(name=>{
+        school.adjacent.forEach(item=>{
 
             neighborsHtml+=`
                 <button
                     class="neighbor-btn"
-                    onclick="showNeighbor(${JSON.stringify(name)})">
-                    ${name}
+                    onclick="showNeighbor(${item.id})">
+                    ${item.name}
                 </button>
             `;
 
         });
 
+    }else if(typeof school.adjacent==="string"){
+
+        school.adjacent
+            .split("\n")
+            .map(x=>x.trim())
+            .filter(x=>x.length>0)
+            .forEach(name=>{
+
+                neighborsHtml+=`
+                    <button
+                        class="neighbor-btn"
+                        onclick="showNeighborByName(${JSON.stringify(name)})">
+                        ${name}
+                    </button>
+                `;
+
+            });
+
     }
 
-    return `
+        return `
 
     <div class="result-card ${cardClass}">
 
@@ -367,8 +268,8 @@ function createCard(school){
 
         <p><strong>📍 آدرس:</strong><br>${school.address}</p>
 
-        <p><strong>🗺 محدوده ثبت نام:</strong><br>
-        ${String(school.region||"").replace(/\n/g,"<br>")}
+        <p><strong>🗺 محدوده ثبت‌نام:</strong><br>
+        ${String(school.region || "").replace(/\n/g,"<br>")}
         </p>
 
         <hr style="margin:15px 0;opacity:.25;">
@@ -376,7 +277,9 @@ function createCard(school){
         <p><strong>🏫 مدارس مجاور</strong></p>
 
         <div class="neighbors">
+
             ${neighborsHtml || "ندارد"}
+
         </div>
 
     </div>
@@ -385,33 +288,13 @@ function createCard(school){
 
 }
 
-function showNeighbor(name){
+function showNeighbor(id){
 
-    const target = normalize(name)
-        .replace(/[()]/g,"")
-        .replace(/\s+/g," ")
-        .trim();
-
-    const school = schools.find(s => {
-
-        const schoolName = normalize(s.name)
-            .replace(/[()]/g,"")
-            .replace(/\s+/g," ")
-            .trim();
-
-        return schoolName === target;
-
-    });
+    const school = schools.find(s => s.id === id);
 
     if(!school){
 
-        console.log("دنبال این مدرسه گشتم:", target);
-
-        console.log("لیست مدارس:");
-
-        schools.forEach(s=>console.log(s.name));
-
-        alert("اطلاعات این مدرسه در فایل پیدا نشد.");
+        alert("اطلاعات این مدرسه پیدا نشد.");
 
         return;
 
@@ -420,30 +303,67 @@ function showNeighbor(name){
     resultBox.innerHTML = createCard(school);
 
     window.scrollTo({
+
         top:0,
+
         behavior:"smooth"
+
     });
 
 }
 
-    resultBox.innerHTML=`
-        <div style="
-            background:#198754;
-            color:white;
-            padding:12px;
-            border-radius:12px;
-            margin-bottom:20px;
-            text-align:center;
-            font-weight:bold;">
-            🏫 اطلاعات مدرسه مجاور
-        </div>
-    `;
+function showNeighborByName(name){
 
-    resultBox.innerHTML+=createCard(school);
+    const target = normalize(name);
+
+    const school = schools.find(s => {
+
+        const schoolName = normalize(s.name);
+
+        return schoolName === target;
+
+    });
+
+    if(!school){
+
+        // اگر نام دقیق پیدا نشد، جستجوی تقریبی انجام شود
+
+        const alternative = schools.find(s => {
+
+            const schoolName = normalize(s.name);
+
+            return schoolName.includes(target) ||
+                   target.includes(schoolName);
+
+        });
+
+        if(alternative){
+
+            resultBox.innerHTML = createCard(alternative);
+
+            window.scrollTo({
+                top:0,
+                behavior:"smooth"
+            });
+
+            return;
+
+        }
+
+        alert("اطلاعات این مدرسه در فایل موجود نیست.");
+
+        return;
+
+    }
+
+    resultBox.innerHTML = createCard(school);
 
     window.scrollTo({
+
         top:0,
+
         behavior:"smooth"
+
     });
 
 }
