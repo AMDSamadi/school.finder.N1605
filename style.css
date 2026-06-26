@@ -227,3 +227,19 @@ footer{
     }
 
 }
+.neighbor-btn{
+    margin:4px;
+    padding:8px 12px;
+    border:none;
+    border-radius:8px;
+    background:#fff;
+    color:#0B1F4D;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.neighbor-btn:hover{
+    background:#D4AF37;
+    color:#081C3A;
+}
