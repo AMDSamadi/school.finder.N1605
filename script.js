@@ -387,25 +387,44 @@ function createCard(school){
 
 function showNeighbor(name){
 
-    const target=normalize(name);
+    const target = normalize(name)
+        .replace(/[()]/g,"")
+        .replace(/\s+/g," ")
+        .trim();
 
-    const school=schools.find(s=>{
+    const school = schools.find(s => {
 
-        const schoolName=normalize(s.name);
+        const schoolName = normalize(s.name)
+            .replace(/[()]/g,"")
+            .replace(/\s+/g," ")
+            .trim();
 
-        return schoolName===target ||
-               schoolName.includes(target) ||
-               target.includes(schoolName);
+        return schoolName === target;
 
     });
 
     if(!school){
 
-        alert("اطلاعات این مدرسه در فایل موجود نیست.");
+        console.log("دنبال این مدرسه گشتم:", target);
+
+        console.log("لیست مدارس:");
+
+        schools.forEach(s=>console.log(s.name));
+
+        alert("اطلاعات این مدرسه در فایل پیدا نشد.");
 
         return;
 
     }
+
+    resultBox.innerHTML = createCard(school);
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
 
     resultBox.innerHTML=`
         <div style="
