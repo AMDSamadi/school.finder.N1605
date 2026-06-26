@@ -1,6 +1,6 @@
-// ======================================
-// School Finder v6
-// ======================================
+// =====================================
+// School Finder v7
+// =====================================
 
 let schools = [];
 let currentSchool = null;
@@ -24,8 +24,11 @@ async function init(){
 
         item.addEventListener("keydown",e=>{
 
-            if(e.key==="Enter")
+            if(e.key==="Enter"){
+
                 searchSchool();
+
+            }
 
         });
 
@@ -41,13 +44,13 @@ async function loadSchools(){
 
         if(!response.ok){
 
-            throw new Error("خطا در خواندن فایل schools.json");
+            throw new Error("خطا در بارگذاری فایل مدارس");
 
         }
 
         schools=await response.json();
 
-        console.log("Schools:",schools.length);
+        console.log("Schools Loaded:",schools.length);
 
     }
 
@@ -84,9 +87,9 @@ function normalize(text){
         .replace(/صاحبالزمان/g,"صاحب الزمان")
 
         .replace(/[()]/g,"")
-
         .replace(/\u200c/g," ")
-
+        .replace(/\r/g," ")
+        .replace(/\n/g," ")
         .replace(/\s+/g," ")
 
         .trim();
@@ -109,7 +112,7 @@ function getLevel(grade){
 
 function getStreetList(school){
 
-    const list=[];
+    const streets=[];
 
     Object.keys(school).forEach(key=>{
 
@@ -119,7 +122,7 @@ function getStreetList(school){
 
             if(value){
 
-                list.push(normalize(value));
+                streets.push(normalize(value));
 
             }
 
@@ -127,7 +130,643 @@ function getStreetList(school){
 
     });
 
-    return list;
+    return streets;
+
+}
+
+function searchSchool(){
+
+    const gender=normalize(genderInput.value);
+
+    const level=getLevel(gradeInput.value);
+
+    const street=normalize(streetInput.value);
+
+    const number=normalize(numberInput.value);
+
+    if(!gender || !level || !street || !number){
+
+        resultBox.innerHTML=`
+        <div class="not-found">
+            لطفاً تمام اطلاعات را وارد کنید.
+        </div>`;
+
+        return;
+
+    }
+
+    const address=normalize(street+" "+number);
+
+    // =====================================
+// School Finder v7
+// =====================================
+
+let schools = [];
+let currentSchool = null;
+
+const genderInput = document.getElementById("gender");
+const gradeInput = document.getElementById("grade");
+const streetInput = document.getElementById("street");
+const numberInput = document.getElementById("number");
+const resultBox = document.getElementById("result");
+const searchBtn = document.getElementById("searchBtn");
+
+document.addEventListener("DOMContentLoaded", init);
+
+async function init(){
+
+    await loadSchools();
+
+    searchBtn.addEventListener("click", searchSchool);
+
+    [genderInput,gradeInput,streetInput,numberInput].forEach(item=>{
+
+        item.addEventListener("keydown",e=>{
+
+            if(e.key==="Enter"){
+
+                searchSchool();
+
+            }
+
+        });
+
+    });
+
+}
+
+async function loadSchools(){
+
+    try{
+
+        const response=await fetch("schools.json");
+
+        if(!response.ok){
+
+            throw new Error("خطا در بارگذاری فایل مدارس");
+
+        }
+
+        schools=await response.json();
+
+        console.log("Schools Loaded:",schools.length);
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        resultBox.innerHTML=`
+        <div class="not-found">
+            خطا در بارگذاری اطلاعات مدارس
+        </div>`;
+
+    }
+
+}
+
+function normalize(text){
+
+    if(text===undefined || text===null)
+        return "";
+
+    return String(text)
+
+        .replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+        .replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))
+
+        .replace(/ي/g,"ی")
+        .replace(/ك/g,"ک")
+
+        .replace(/بابانظر/g,"بابا نظر")
+        .replace(/ابرهیم/g,"ابراهیم")
+        .replace(/اسماعیلپور/g,"اسماعیل پور")
+        .replace(/میرزاکوچک/g,"میرزا کوچک")
+        .replace(/صاحبالزمان/g,"صاحب الزمان")
+
+        .replace(/[()]/g,"")
+        .replace(/\u200c/g," ")
+        .replace(/\r/g," ")
+        .replace(/\n/g," ")
+        .replace(/\s+/g," ")
+
+        .trim();
+
+}
+
+function getLevel(grade){
+
+    grade=Number(grade);
+
+    if(grade>=1 && grade<=3)
+        return "اول";
+
+    if(grade>=4 && grade<=6)
+        return "دوم";
+
+    return "";
+
+}
+
+function getStreetList(school){
+
+    const streets=[];
+
+    Object.keys(school).forEach(key=>{
+
+        if(key.startsWith("شماره کوچه")){
+
+            const value=school[key];
+
+            if(value){
+
+                streets.push(normalize(value));
+
+            }
+
+        }
+
+    });
+
+    return streets;
+
+}
+
+function searchSchool(){
+
+    const gender=normalize(genderInput.value);
+
+    const level=getLevel(gradeInput.value);
+
+    const street=normalize(streetInput.value);
+
+    const number=normalize(numberInput.value);
+
+    if(!gender || !level || !street || !number){
+
+        resultBox.innerHTML=`
+        <div class="not-found">
+            لطفاً تمام اطلاعات را وارد کنید.
+        </div>`;
+
+        return;
+
+    }
+
+    const address=normalize(street+" "+number);
+
+    // =====================================
+// School Finder v7
+// =====================================
+
+let schools = [];
+let currentSchool = null;
+
+const genderInput = document.getElementById("gender");
+const gradeInput = document.getElementById("grade");
+const streetInput = document.getElementById("street");
+const numberInput = document.getElementById("number");
+const resultBox = document.getElementById("result");
+const searchBtn = document.getElementById("searchBtn");
+
+document.addEventListener("DOMContentLoaded", init);
+
+async function init(){
+
+    await loadSchools();
+
+    searchBtn.addEventListener("click", searchSchool);
+
+    [genderInput,gradeInput,streetInput,numberInput].forEach(item=>{
+
+        item.addEventListener("keydown",e=>{
+
+            if(e.key==="Enter"){
+
+                searchSchool();
+
+            }
+
+        });
+
+    });
+
+}
+
+async function loadSchools(){
+
+    try{
+
+        const response=await fetch("schools.json");
+
+        if(!response.ok){
+
+            throw new Error("خطا در بارگذاری فایل مدارس");
+
+        }
+
+        schools=await response.json();
+
+        console.log("Schools Loaded:",schools.length);
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        resultBox.innerHTML=`
+        <div class="not-found">
+            خطا در بارگذاری اطلاعات مدارس
+        </div>`;
+
+    }
+
+}
+
+function normalize(text){
+
+    if(text===undefined || text===null)
+        return "";
+
+    return String(text)
+
+        .replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+        .replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))
+
+        .replace(/ي/g,"ی")
+        .replace(/ك/g,"ک")
+
+        .replace(/بابانظر/g,"بابا نظر")
+        .replace(/ابرهیم/g,"ابراهیم")
+        .replace(/اسماعیلپور/g,"اسماعیل پور")
+        .replace(/میرزاکوچک/g,"میرزا کوچک")
+        .replace(/صاحبالزمان/g,"صاحب الزمان")
+
+        .replace(/[()]/g,"")
+        .replace(/\u200c/g," ")
+        .replace(/\r/g," ")
+        .replace(/\n/g," ")
+        .replace(/\s+/g," ")
+
+        .trim();
+
+}
+
+function getLevel(grade){
+
+    grade=Number(grade);
+
+    if(grade>=1 && grade<=3)
+        return "اول";
+
+    if(grade>=4 && grade<=6)
+        return "دوم";
+
+    return "";
+
+}
+
+function getStreetList(school){
+
+    const streets=[];
+
+    Object.keys(school).forEach(key=>{
+
+        if(key.startsWith("شماره کوچه")){
+
+            const value=school[key];
+
+            if(value){
+
+                streets.push(normalize(value));
+
+            }
+
+        }
+
+    });
+
+    return streets;
+
+}
+
+function searchSchool(){
+
+    const gender=normalize(genderInput.value);
+
+    const level=getLevel(gradeInput.value);
+
+    const street=normalize(streetInput.value);
+
+    const number=normalize(numberInput.value);
+
+    if(!gender || !level || !street || !number){
+
+        resultBox.innerHTML=`
+        <div class="not-found">
+            لطفاً تمام اطلاعات را وارد کنید.
+        </div>`;
+
+        return;
+
+    }
+
+    const address=normalize(street+" "+number);
+
+    // =====================================
+// School Finder v7
+// =====================================
+
+let schools = [];
+let currentSchool = null;
+
+const genderInput = document.getElementById("gender");
+const gradeInput = document.getElementById("grade");
+const streetInput = document.getElementById("street");
+const numberInput = document.getElementById("number");
+const resultBox = document.getElementById("result");
+const searchBtn = document.getElementById("searchBtn");
+
+document.addEventListener("DOMContentLoaded", init);
+
+async function init(){
+
+    await loadSchools();
+
+    searchBtn.addEventListener("click", searchSchool);
+
+    [genderInput,gradeInput,streetInput,numberInput].forEach(item=>{
+
+        item.addEventListener("keydown",e=>{
+
+            if(e.key==="Enter"){
+
+                searchSchool();
+
+            }
+
+        });
+
+    });
+
+}
+
+async function loadSchools(){
+
+    try{
+
+        const response=await fetch("schools.json");
+
+        if(!response.ok){
+
+            throw new Error("خطا در بارگذاری فایل مدارس");
+
+        }
+
+        schools=await response.json();
+
+        console.log("Schools Loaded:",schools.length);
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        resultBox.innerHTML=`
+        <div class="not-found">
+            خطا در بارگذاری اطلاعات مدارس
+        </div>`;
+
+    }
+
+}
+
+function normalize(text){
+
+    if(text===undefined || text===null)
+        return "";
+
+    return String(text)
+
+        .replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+        .replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))
+
+        .replace(/ي/g,"ی")
+        .replace(/ك/g,"ک")
+
+        .replace(/بابانظر/g,"بابا نظر")
+        .replace(/ابرهیم/g,"ابراهیم")
+        .replace(/اسماعیلپور/g,"اسماعیل پور")
+        .replace(/میرزاکوچک/g,"میرزا کوچک")
+        .replace(/صاحبالزمان/g,"صاحب الزمان")
+
+        .replace(/[()]/g,"")
+        .replace(/\u200c/g," ")
+        .replace(/\r/g," ")
+        .replace(/\n/g," ")
+        .replace(/\s+/g," ")
+
+        .trim();
+
+}
+
+function getLevel(grade){
+
+    grade=Number(grade);
+
+    if(grade>=1 && grade<=3)
+        return "اول";
+
+    if(grade>=4 && grade<=6)
+        return "دوم";
+
+    return "";
+
+}
+
+function getStreetList(school){
+
+    const streets=[];
+
+    Object.keys(school).forEach(key=>{
+
+        if(key.startsWith("شماره کوچه")){
+
+            const value=school[key];
+
+            if(value){
+
+                streets.push(normalize(value));
+
+            }
+
+        }
+
+    });
+
+    return streets;
+
+}
+
+function searchSchool(){
+
+    const gender=normalize(genderInput.value);
+
+    const level=getLevel(gradeInput.value);
+
+    const street=normalize(streetInput.value);
+
+    const number=normalize(numberInput.value);
+
+    if(!gender || !level || !street || !number){
+
+        resultBox.innerHTML=`
+        <div class="not-found">
+            لطفاً تمام اطلاعات را وارد کنید.
+        </div>`;
+
+        return;
+
+    }
+
+    const address=normalize(street+" "+number);
+
+    // =====================================
+// School Finder v7
+// =====================================
+
+let schools = [];
+let currentSchool = null;
+
+const genderInput = document.getElementById("gender");
+const gradeInput = document.getElementById("grade");
+const streetInput = document.getElementById("street");
+const numberInput = document.getElementById("number");
+const resultBox = document.getElementById("result");
+const searchBtn = document.getElementById("searchBtn");
+
+document.addEventListener("DOMContentLoaded", init);
+
+async function init(){
+
+    await loadSchools();
+
+    searchBtn.addEventListener("click", searchSchool);
+
+    [genderInput,gradeInput,streetInput,numberInput].forEach(item=>{
+
+        item.addEventListener("keydown",e=>{
+
+            if(e.key==="Enter"){
+
+                searchSchool();
+
+            }
+
+        });
+
+    });
+
+}
+
+async function loadSchools(){
+
+    try{
+
+        const response=await fetch("schools.json");
+
+        if(!response.ok){
+
+            throw new Error("خطا در بارگذاری فایل مدارس");
+
+        }
+
+        schools=await response.json();
+
+        console.log("Schools Loaded:",schools.length);
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        resultBox.innerHTML=`
+        <div class="not-found">
+            خطا در بارگذاری اطلاعات مدارس
+        </div>`;
+
+    }
+
+}
+
+function normalize(text){
+
+    if(text===undefined || text===null)
+        return "";
+
+    return String(text)
+
+        .replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+        .replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))
+
+        .replace(/ي/g,"ی")
+        .replace(/ك/g,"ک")
+
+        .replace(/بابانظر/g,"بابا نظر")
+        .replace(/ابرهیم/g,"ابراهیم")
+        .replace(/اسماعیلپور/g,"اسماعیل پور")
+        .replace(/میرزاکوچک/g,"میرزا کوچک")
+        .replace(/صاحبالزمان/g,"صاحب الزمان")
+
+        .replace(/[()]/g,"")
+        .replace(/\u200c/g," ")
+        .replace(/\r/g," ")
+        .replace(/\n/g," ")
+        .replace(/\s+/g," ")
+
+        .trim();
+
+}
+
+function getLevel(grade){
+
+    grade=Number(grade);
+
+    if(grade>=1 && grade<=3)
+        return "اول";
+
+    if(grade>=4 && grade<=6)
+        return "دوم";
+
+    return "";
+
+}
+
+function getStreetList(school){
+
+    const streets=[];
+
+    Object.keys(school).forEach(key=>{
+
+        if(key.startsWith("شماره کوچه")){
+
+            const value=school[key];
+
+            if(value){
+
+                streets.push(normalize(value));
+
+            }
+
+        }
+
+    });
+
+    return streets;
 
 }
 
@@ -171,9 +810,9 @@ function searchSchool(){
 
         const streets=getStreetList(school);
 
-        const found=streets.some(item=>item===address);
+        const isMatched=streets.some(item=>item===address);
 
-        if(found){
+        if(isMatched){
 
             matchedSchools.push(school);
 
@@ -192,7 +831,9 @@ function searchSchool(){
 
     }
 
-    resultBox.innerHTML=`
+    resultBox.innerHTML="";
+
+    resultBox.innerHTML+=`
         <div style="
             background:#0d6efd;
             color:#fff;
@@ -205,9 +846,9 @@ function searchSchool(){
         </div>
     `;
 
-    matchedSchools.forEach(school=>{
+    matchedSchools.forEach(item=>{
 
-        resultBox.innerHTML+=createCard(school);
+        resultBox.innerHTML+=createCard(item);
 
     });
 
@@ -219,38 +860,34 @@ function createCard(school){
 
     const cardClass=
         school["جنسیت"]==="پسرانه"
-        ?"boys"
-        :"girls";
+            ?"boys"
+            :"girls";
 
     const emoji=
         school["جنسیت"]==="پسرانه"
-        ?"👦"
-        :"🧕";
+            ?"👦"
+            :"🧕";
 
     let neighborsHtml="";
 
-    const adjacent=String(
+    const neighbors=String(
         school["مدارس مجاور"] || ""
-    );
+    )
+    .split("\n")
+    .map(x=>x.trim())
+    .filter(x=>x!=="")
 
-    adjacent
-        .split("\n")
-        .map(x=>x.trim())
-        .filter(x=>x!=="")
-        .forEach(name=>{
+    neighbors.forEach(item=>{
 
-            neighborsHtml+=`
-                <button
-                    class="neighbor-btn"
-                    onclick="showNeighbor(
-                        ${JSON.stringify(name)},
-                        ${JSON.stringify(school["جنسیت"])}
-                    )">
-                    ${name}
-                </button>
-            `;
+        neighborsHtml+=`
+            <button
+                class="neighbor-btn"
+                onclick="showNeighbor(${JSON.stringify(item)})">
+                ${item}
+            </button>
+        `;
 
-        });
+    });
 
         return `
 
@@ -277,9 +914,7 @@ function createCard(school){
         <p><strong>🏫 مدارس مجاور</strong></p>
 
         <div class="neighbors">
-
             ${neighborsHtml || "ندارد"}
-
         </div>
 
     </div>
@@ -291,34 +926,55 @@ function createCard(school){
 function normalizeSchoolName(name){
 
     return normalize(name)
-        .replace(/[()]/g,"")
-        .replace(/\s+/g," ")
+        .replace(/\(س\)/g,"")
+        .replace(/\(ع\)/g,"")
+        .replace(/\(عج\)/g,"")
+        .replace(/\(ره\)/g,"")
+        .replace(/\s+/g,"")
         .trim();
 
 }
 
-function findNeighbor(name,gender){
+function findSchoolByName(name,gender){
 
     const targetName=normalizeSchoolName(name);
     const targetGender=normalize(gender);
 
-    return schools.find(item=>{
+    let school=schools.find(item=>{
 
-        const schoolName=normalizeSchoolName(item["نام مدرسه"]);
-        const schoolGender=normalize(item["جنسیت"]);
-
-        return (
-            schoolName===targetName &&
-            schoolGender===targetGender
-        );
+        return normalizeSchoolName(item["نام مدرسه"])===targetName &&
+               normalize(item["جنسیت"])===targetGender;
 
     });
 
+    if(school){
+
+        return school;
+
+    }
+
+    school=schools.find(item=>{
+
+        const schoolName=normalizeSchoolName(item["نام مدرسه"]);
+
+        return (
+            schoolName.includes(targetName) ||
+            targetName.includes(schoolName)
+        ) &&
+        normalize(item["جنسیت"])===targetGender;
+
+    });
+
+    return school || null;
+
 }
 
-function showNeighbor(name,gender){
+function showNeighbor(name){
 
-    const school=findNeighbor(name,gender);
+        const school=findSchoolByName(
+        name,
+        currentSchool["جنسیت"]
+    );
 
     if(!school){
 
@@ -333,8 +989,66 @@ function showNeighbor(name,gender){
     resultBox.innerHTML=createCard(school);
 
     window.scrollTo({
+
         top:0,
+
         behavior:"smooth"
+
     });
+
+}
+
+function getSchoolByRow(row){
+
+    return schools.find(item=>
+        Number(item["ردیف"])===Number(row)
+    );
+
+}
+
+function clearResult(){
+
+    resultBox.innerHTML="";
+
+}
+
+function showSchools(list){
+
+    clearResult();
+
+    resultBox.innerHTML+=`
+        <div style="
+            background:#0d6efd;
+            color:#fff;
+            padding:12px;
+            border-radius:12px;
+            margin-bottom:20px;
+            text-align:center;
+            font-weight:bold;">
+            ✅ ${list.length} مدرسه برای این محدوده یافت شد.
+        </div>
+    `;
+
+    list.forEach(item=>{
+
+        resultBox.innerHTML+=createCard(item);
+
+    });
+
+}
+
+function formatPhone(phone){
+
+    if(phone===undefined || phone===null)
+        return "";
+
+    return String(phone);
+
+}
+
+function formatText(text){
+
+    return String(text || "")
+        .replace(/\n/g,"<br>");
 
 }
