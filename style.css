@@ -173,13 +173,16 @@ button:hover{
 }
 
 .result-card h3{
-
     text-align:center;
-
-    font-size:28px;
-
+    font-size:30px;
     margin-bottom:20px;
-
+    color:#ffffff;
+    text-shadow:
+        -1px -1px 0 #000,
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000,
+         0 0 8px rgba(0,0,0,.4);
 }
 
 .info-box{
