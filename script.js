@@ -1,211 +1,87 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Vazirmatn',sans-serif;
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const searchBtn = document.getElementById('searchBtn');
+    const resultDiv = document.getElementById('result');
 
-body{
-    background:#081C3A;
-    color:#D4AF37;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:30px;
-}
+    searchBtn.addEventListener('click', async () => {
+        // دریافت مقادیر از فرم
+        const gender = document.getElementById('gender').value;
+        const grade = document.getElementById('grade').value;
+        const streetName = document.getElementById('street').value.trim();
+        const streetNumber = document.getElementById('number').value.trim();
 
-.container{
-    width:100%;
-    max-width:700px;
-    text-align:center;
-}
+        // بررسی پر بودن فیلدها
+        if (!gender || !grade || !streetName || !streetNumber) {
+            alert('لطفاً تمام فیلدها را تکمیل کنید.');
+            return;
+        }
 
-.logo{
-    width:120px;
-    margin-bottom:15px;
-}
+        // تعیین دوره تحصیلی بر اساس پایه
+        let period = "";
+        if (['1', '2', '3'].includes(grade)) {
+            period = "اول";
+        } else if (['4', '5', '6'].includes(grade)) {
+            period = "دوم";
+        }
 
-h1{
-    font-size:28px;
-    margin-bottom:8px;
-    font-weight:700;
-}
+        // ساخت رشته جستجو (مثلاً: "نبوت 45")
+        const searchString = `${streetName} ${streetNumber}`.trim();
 
-h2{
-    font-size:18px;
-    margin-bottom:35px;
-    font-weight:400;
-}
+        try {
+            // خواندن فایل جیسون
+            const response = await fetch('schools.json');
+            if (!response.ok) throw new Error('فایل داده‌ها یافت نشد.');
+            const schools = await response.json();
 
-.search-box{
-    background:rgba(255,255,255,.08);
-    backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,.15);
-    border-radius:18px;
-    padding:30px;
-    box-shadow:0 10px 30px rgba(0,0,0,.4);
-}
+            // فیلتر کردن مدارس
+            const matchedSchool = schools.find(school => {
+                // 1. بررسی جنسیت
+                const genderMatch = school['جنسیت'] === gender;
+                
+                // 2. بررسی دوره (اول یا دوم)
+                const periodMatch = school['دوره'] === period;
 
-.form-group{
-    margin-bottom:20px;
-    text-align:right;
-}
+                // 3. جستجو در تمام ستون‌های شماره کوچه (از 1 تا 100)
+                let streetMatch = false;
+                for (let i = 1; i <= 100; i++) {
+                    const key = `شماره کوچه ${i}`;
+                    if (school[key] && school[key].toString().trim() === searchString) {
+                        streetMatch = true;
+                        break;
+                    }
+                }
 
-label{
-    display:block;
-    margin-bottom:8px;
-    font-size:16px;
-    color:#F4D87D;
-}
+                return genderMatch && periodMatch && streetMatch;
+            });
 
-input,
-select{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    font-size:16px;
-    outline:none;
-    background:#ffffff;
-    color:#222;
-    transition:.3s;
-}
+            // نمایش نتیجه
+            displayResult(matchedSchool, gender);
 
-input:focus,
-select:focus{
-    box-shadow:0 0 12px #D4AF37;
-}
+        } catch (error) {
+            console.error('Error:', error);
+            resultDiv.innerHTML = `<div class="not-found">خطا در بارگذاری اطلاعات. لطفاً دوباره تلاش کنید.</div>`;
+        }
+    });
 
-button{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:12px;
-    background:#D4AF37;
-    color:#081C3A;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
-    transition:.3s;
-}
+    function displayResult(school, gender) {
+        if (!school) {
+            resultDiv.innerHTML = `<div class="not-found">❌ متأسفانه مدرسه‌ای برای این محدوده و شرایط یافت نشد.</div>`;
+            return;
+        }
 
-button:hover{
-    background:#F2CB4D;
-    transform:translateY(-2px);
-}
+        // تعیین استایل و ایموجی بر اساس جنسیت
+        const cardClass = gender === 'پسرانه' ? 'boys' : 'girls';
+        const emoji = gender === 'پسرانه' ? '👦' : '🧕';
 
-button:active{
-    transform:scale(.98);
-}
-
-#result{
-    margin-top:30px;
-}
-
-.result-card{
-    border-radius:18px;
-    padding:25px;
-    color:white;
-    text-align:right;
-    box-shadow:0 10px 25px rgba(0,0,0,.35);
-    animation:fadeIn .5s ease;
-}
-
-.result-card h3{
-    text-align:center;
-    font-size:28px;
-    margin-bottom:20px;
-}
-
-.result-card p{
-    margin:12px 0;
-    line-height:1.9;
-    font-size:17px;
-}
-
-.boys{
-    background:linear-gradient(135deg,#1976D2,#0D47A1);
-}
-
-.girls{
-    background:linear-gradient(135deg,#EC407A,#C2185B);
-}
-
-.not-found{
-    background:#B71C1C;
-    color:white;
-    border-radius:15px;
-    padding:20px;
-    text-align:center;
-    font-size:18px;
-    animation:fadeIn .5s;
-}
-
-@keyframes fadeIn{
-
-    from{
-        opacity:0;
-        transform:translateY(20px);
+        resultDiv.innerHTML = `
+            <div class="result-card ${cardClass}">
+                <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">${emoji}</div>
+                <h3>${school['نام مدرسه']}</h3>
+                <p><strong>📍 آدرس:</strong> ${school['آدرس مدرسه']}</p>
+                <p><strong>☎️ تلفن:</strong> ${school['شماره تماس']}</p>
+                <p><strong>🕒 نوبت:</strong> ${school['نوبت']}</p>
+                <p><strong>📚 دوره:</strong> ${school['دوره']}</p>
+                <p><strong>🔁 مدارس مجاور:</strong><br> ${school['مدارس مجاور'].replace(/\n/g, ' ، ')}</p>
+            </div>
+        `;
     }
-
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
-
-}
-
-@media(max-width:768px){
-
-    body{
-        padding:15px;
-    }
-
-    .search-box{
-        padding:20px;
-    }
-
-    h1{
-        font-size:22px;
-    }
-
-    h2{
-        font-size:15px;
-    }
-
-    .logo{
-        width:90px;
-    }
-
-    input,
-    select,
-    button{
-        font-size:15px;
-    }
-
-    .result-card h3{
-        font-size:22px;
-    }
-
-}
-
-@media(max-width:480px){
-
-    h1{
-        font-size:19px;
-    }
-
-    h2{
-        font-size:14px;
-    }
-
-    .search-box{
-        padding:15px;
-    }
-
-    label{
-        font-size:15px;
-    }
-
-}
+});
