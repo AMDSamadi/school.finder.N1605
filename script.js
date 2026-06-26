@@ -282,7 +282,7 @@ function showNeighbor(name,gender){
 
     const target=normalize(name);
 
-    const school=schools.find(item=>{
+    const school = findSchoolByName(name, gender);
 
         const schoolName=normalize(item["نام مدرسه"]);
 
