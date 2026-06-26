@@ -43,14 +43,15 @@ async function loadSchools() {
 
         resultBox.innerHTML = "";
     } catch (error) {
-        console.error("خطا در بارگذاری JSON:", error);
-        resultBox.innerHTML = `
-            <div class="not-found">
-                خطا در بارگذاری فایل مدارس.<br>
-                لطفاً بررسی کنید فایل <strong>schools.json</strong> درست آپلود شده باشد.
-            </div>
-        `;
-    }
+    console.error(error);
+
+    resultBox.innerHTML = `
+        <div class="not-found">
+            ${error.name}<br>
+            ${error.message}
+        </div>
+    `;
+}
 }
 
 function findSchool() {
