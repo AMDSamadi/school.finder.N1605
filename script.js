@@ -1,220 +1,101 @@
-let schoolsData = [];
+let schools = [];
 
-const genderInput = document.getElementById("gender");
-const gradeInput = document.getElementById("grade");
-const streetInput = document.getElementById("street");
-const numberInput = document.getElementById("number");
-const searchBtn = document.getElementById("searchBtn");
-const resultBox = document.getElementById("result");
-
-document.addEventListener("DOMContentLoaded", () => {
-    loadSchools();
-
-    searchBtn.addEventListener("click", findSchool);
-
-    [genderInput, gradeInput, streetInput, numberInput].forEach(input => {
-        input.addEventListener("keydown", (event) => {
-            if (event.key === "Enter") {
-                findSchool();
-            }
-        });
-    });
+fetch("schools.json")
+.then(res => res.json())
+.then(data => {
+    schools = data;
+})
+.catch(err => {
+    document.getElementById("result").innerHTML =
+    `<div class="not-found">
+        خطا در بارگذاری اطلاعات مدارس
+    </div>`;
+    console.error(err);
 });
 
-async function loadSchools() {
-    try {
-        resultBox.innerHTML = `<div class="not-found">در حال بارگذاری اطلاعات مدارس...</div>`;
+document.getElementById("searchBtn").addEventListener("click", searchSchool);
 
-        const response = await fetch("./schools.json");
+function searchSchool(){
 
-        if (!response.ok) {
-            throw new Error("خطا در خواندن فایل schools.json");
-        }
+    const gender = document.getElementById("gender").value.trim();
 
-        const data = await response.json();
+    const grade = Number(document.getElementById("grade").value);
 
-        if (Array.isArray(data)) {
-            schoolsData = data;
-        } else if (typeof data === "object" && data !== null) {
-            schoolsData = [data];
-        } else {
-            schoolsData = [];
-        }
+    const street = document.getElementById("street").value.trim();
 
-        resultBox.innerHTML = "";
-    } catch (error) {
-    console.error(error);
+    const number = document.getElementById("number").value.trim();
 
-    resultBox.innerHTML = `
+    const result = document.getElementById("result");
+
+    if(gender=="" || grade=="" || street==""){
+        result.innerHTML=`<div class="not-found">
+        لطفاً همه اطلاعات را وارد کنید.
+        </div>`;
+        return;
+    }
+
+    let level="";
+
+    if(grade<=3)
+        level="اول";
+    else
+        level="دوم";
+
+    const address=(street+" "+number).trim();
+
+    const school=schools.find(item=>{
+
+        if(item.gender!==gender)
+            return false;
+
+        if(item.level!==level)
+            return false;
+
+        return item.streets.some(s=>
+            s.trim()==address
+        );
+
+    });
+
+    if(!school){
+
+        result.innerHTML=`
         <div class="not-found">
-            ${error.name}<br>
-            ${error.message}
-        </div>
+        مدرسه‌ای برای این محدوده پیدا نشد.
+        </div>`;
+
+        return;
+
+    }
+
+    let color="girls";
+    let emoji="🧕";
+
+    if(school.gender=="پسرانه"){
+        color="boys";
+        emoji="👦";
+    }
+
+    result.innerHTML=`
+
+    <div class="result-card ${color}">
+
+    <h3>${emoji} ${school.name}</h3>
+
+    <p><b>📚 دوره:</b> ${school.level}</p>
+
+    <p><b>🕒 شیفت:</b> ${school.shift}</p>
+
+    <p><b>☎ تلفن:</b> ${school.phone}</p>
+
+    <p><b>📍 آدرس:</b> ${school.address}</p>
+
+    <p><b>🗺 محدوده ثبت نام:</b><br>${school.region.replace(/\n/g,"<br>")}</p>
+
+    <p><b>🏫 مدارس مجاور:</b><br>${school.adjacent.replace(/\n/g,"<br>")}</p>
+
+    </div>
+
     `;
-}
-}
 
-function findSchool() {
-    if (!schoolsData.length) {
-        resultBox.innerHTML = `
-            <div class="not-found">
-                اطلاعات مدارس هنوز بارگذاری نشده است.
-            </div>
-        `;
-        return;
-    }
-
-    const gender = normalizeText(genderInput.value);
-    const grade = toEnglishDigits(String(gradeInput.value)).trim();
-    const street = normalizeText(streetInput.value);
-    const number = toEnglishDigits(String(numberInput.value)).trim();
-
-    const period = getPeriodByGrade(grade);
-
-    if (!gender) {
-        showError("لطفاً جنسیت مدرسه را انتخاب کنید.");
-        return;
-    }
-
-    if (!grade || !period) {
-        showError("لطفاً پایه تحصیلی را انتخاب کنید.");
-        return;
-    }
-
-    if (!street) {
-        showError("لطفاً نام کوچه را وارد کنید.");
-        return;
-    }
-
-    const matches = schoolsData.filter((school) => {
-        const schoolGender = normalizeText(school["جنسیت"]);
-        const schoolPeriod = normalizeText(school["دوره"]);
-
-        if (schoolGender !== gender) return false;
-        if (schoolPeriod !== period) return false;
-
-        const streetList = getStreetList(school);
-
-        return isStreetMatched(streetList, street, number);
-    });
-
-    if (!matches.length) {
-        resultBox.innerHTML = `
-            <div class="not-found">
-                مدرسه‌ای برای این محدوده یافت نشد.
-            </div>
-        `;
-        return;
-    }
-
-    renderResults(matches);
-}
-
-function getPeriodByGrade(grade) {
-    const num = Number(grade);
-
-    if ([1, 2, 3].includes(num)) return "اول";
-    if ([4, 5, 6].includes(num)) return "دوم";
-
-    return "";
-}
-
-function getStreetList(school) {
-    const list = [];
-
-    Object.keys(school).forEach((key) => {
-        if (key.startsWith("شماره کوچه")) {
-            const value = school[key];
-
-            if (value !== null && value !== undefined && String(value).trim() !== "") {
-                list.push(normalizeText(String(value)));
-            }
-        }
-    });
-
-    return [...new Set(list)];
-}
-
-function isStreetMatched(streetList, street, number) {
-    const normalizedStreet = normalizeText(street);
-    const fullAddress = number
-        ? normalizeText(`${normalizedStreet} ${number}`)
-        : normalizedStreet;
-
-    return streetList.some((item) => {
-        const value = normalizeText(item);
-
-        if (number) {
-            return value === fullAddress || value === normalizedStreet;
-        }
-
-        return value === normalizedStreet || value.startsWith(normalizedStreet + " ");
-    });
-}
-
-function renderResults(matches) {
-    const html = matches.map((school) => createSchoolCard(school)).join("");
-    resultBox.innerHTML = html;
-}
-
-function createSchoolCard(school) {
-    const gender = normalizeText(school["جنسیت"]);
-    const cardClass = gender === "پسرانه" ? "boys" : "girls";
-    const emoji = gender === "پسرانه" ? "👦" : "🧕";
-
-    const schoolName = school["نام مدرسه"] || "ثبت نشده";
-    const phone = school["شماره تماس"] || "ثبت نشده";
-    const address = school["آدرس مدرسه"] || "ثبت نشده";
-    const shift = school["نوبت"] || "ثبت نشده";
-    const period = school["دوره"] || "ثبت نشده";
-    const neighbors = school["مدارس مجاور"] || "ندارد";
-    const area = school["محدوده ثبت نام"] || "";
-
-    return `
-        <div class="result-card ${cardClass}" style="margin-bottom:20px;">
-            <h3>${emoji} ${escapeHtml(schoolName)}</h3>
-            <p><strong>📚 دوره:</strong> ${escapeHtml(period)}</p>
-            <p><strong>🕒 شیفت:</strong> ${escapeHtml(shift)}</p>
-            <p><strong>☎ شماره تماس:</strong> ${escapeHtml(String(phone))}</p>
-            <p><strong>📍 آدرس مدرسه:</strong> ${escapeHtml(address)}</p>
-            <p><strong>🔁 مدارس مجاور:</strong><br>${formatMultiline(neighbors)}</p>
-            ${area ? `<p><strong>🗺 محدوده ثبت نام:</strong><br>${formatMultiline(area)}</p>` : ""}
-        </div>
-    `;
-}
-
-function showError(message) {
-    resultBox.innerHTML = `
-        <div class="not-found">
-            ${escapeHtml(message)}
-        </div>
-    `;
-}
-
-function formatMultiline(value) {
-    return escapeHtml(String(value)).replace(/\n/g, "<br>");
-}
-
-function normalizeText(text) {
-    return toEnglishDigits(String(text))
-        .replace(/ي/g, "ی")
-        .replace(/ك/g, "ک")
-        .replace(/\u200c/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-function toEnglishDigits(value) {
-    return String(value)
-        .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
-        .replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
-}
-
-function escapeHtml(text) {
-    return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
 }
