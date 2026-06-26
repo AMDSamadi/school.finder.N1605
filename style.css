@@ -22,10 +22,22 @@ body{
     display:block;
     margin:0 auto 15px;
 }
+h1{
+    text-align:center;
+    color:#FFD54F;
+    font-size:46px;
+    margin-bottom:12px;
+    font-weight:700;
+    letter-spacing:1px;
+}
 
-<h1>سامانه مدرسه‌یاب ابتدایی</h1>
-
-<h2>ناحیه پنج مشهد مقدس</h2>
+h2{
+    text-align:center;
+    color:#ffffff;
+    font-size:30px;
+    margin-bottom:35px;
+    font-weight:600;
+}
 
 h3{
     text-align:center;
