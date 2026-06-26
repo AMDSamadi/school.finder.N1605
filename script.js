@@ -278,48 +278,35 @@ function createCard(school){
 
 }
 
-function showNeighbor(name,gender){
+function showNeighbor(name, gender){
 
-    const target=normalize(name);
+    const target = normalize(name);
 
-    const school = findSchoolByName(name, gender);
+    const school = schools.find(item => {
 
-        const schoolName=normalize(item["نام مدرسه"]);
-
-        const schoolGender=normalize(item["جنسیت"]);
+        const schoolName = normalize(item["نام مدرسه"]);
+        const schoolGender = normalize(item["جنسیت"]);
 
         return (
-            schoolName===target &&
-            schoolGender===normalize(gender)
+            schoolName === target &&
+            schoolGender === normalize(gender)
         );
 
     });
 
     if(!school){
+        alert("اطلاعات این مدرسه پیدا نشد.");
+        return;
+    }
 
-        const similar=schools.find(item=>{
+    resultBox.innerHTML = createCard(school);
 
-            const schoolName=normalize(item["نام مدرسه"]);
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 
-            const schoolGender=normalize(item["جنسیت"]);
-
-            return (
-                (schoolName.includes(target) ||
-                 target.includes(schoolName))
-                &&
-                schoolGender===normalize(gender)
-            );
-
-        });
-
-        if(similar){
-
-            resultBox.innerHTML=createCard(similar);
-
-            window.scrollTo({
-                top:0,
-                behavior:"smooth"
-            });
+}
 
             return;
 
