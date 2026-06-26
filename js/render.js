@@ -8,7 +8,7 @@ function createCard(school){
     currentSchool = school;
 
     const isBoy =
-        school["جنسیت"]==="پسرانه";
+        school["جنسیت"] === "پسرانه";
 
     const cardClass =
         isBoy ? "boys" : "girls";
@@ -26,8 +26,7 @@ function createCard(school){
 
         neighbors.forEach(id=>{
 
-            const item =
-                getSchoolByRow(id);
+            const item = getSchoolByRow(id);
 
             if(!item)
                 return;
@@ -38,13 +37,18 @@ function createCard(school){
                     class="neighbor-btn"
                     onclick="showNeighbor(${id})">
 
-                    ${item["نام مدرسه"]}
+                    🏫 ${item["نام مدرسه"]}
 
                 </button>
 
             `;
 
         });
+
+    }
+    else{
+
+        neighborsHtml = "ندارد";
 
     }
 
@@ -59,63 +63,69 @@ function createCard(school){
 
         </h3>
 
-        <p>
+        <div class="info-box">
 
-            <strong>📚 دوره:</strong>
+            <strong>📚 دوره</strong>
+
+            <br>
 
             ${school["دوره"]}
 
-        </p>
+        </div>
 
-        <p>
+        <div class="info-box">
 
-            <strong>🕒 شیفت:</strong>
+            <strong>🕒 شیفت</strong>
+
+            <br>
 
             ${school["نوبت"]}
 
-        </p>
+        </div>
 
-        <p>
+        <div class="info-box">
 
-            <strong>☎ شماره تماس:</strong>
+            <strong>☎ شماره تماس</strong>
+
+            <br>
 
             ${school["شماره تماس"]}
 
-        </p>
+        </div>
 
-        <p>
+        <div class="info-box">
 
-            <strong>📍 آدرس مدرسه:</strong><br>
+            <strong>📍 آدرس مدرسه</strong>
+
+            <br>
 
             ${school["آدرس مدرسه"]}
 
-        </p>
+        </div>
 
-        <p>
+        <div class="info-box">
 
-            <strong>🗺 محدوده ثبت نام:</strong><br>
+            <strong>🗺 محدوده ثبت نام</strong>
+
+            <br>
 
             ${String(
                 school["محدوده ثبت نام"] || ""
             ).replace(/\n/g,"<br>")}
 
-        </p>
+        </div>
 
-        <hr
-            style="
-                margin:18px 0;
-                opacity:.25;
-            ">
+        <div class="info-box">
 
-        <strong>
+            <strong>🏫 مدارس مجاور</strong>
 
-            🏫 مدارس مجاور
+            <br><br>
 
-        </strong>
+            <div class="neighbors">
 
-        <div class="neighbors">
+                ${neighborsHtml}
 
-            ${neighborsHtml || "ندارد"}
+            </div>
 
         </div>
 
@@ -131,7 +141,7 @@ function showSchools(list){
 
     showMessage(
 
-        `✅ ${list.length} مدرسه یافت شد.`
+        `✅ ${list.length} مدرسه برای این محدوده یافت شد.`
 
     );
 
