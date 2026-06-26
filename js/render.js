@@ -89,7 +89,7 @@ function createCard(school){
 
             <br>
 
-            ${school["شماره تماس"]}
+            ${String(school["شماره تماس"] || "").replace(/\n/g," - ")}
 
         </div>
 
