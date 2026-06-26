@@ -1,6 +1,6 @@
 // ===============================
 // neighbors.js
-// مدیریت مدارس مجاور
+// نمایش مدارس مجاور در Modal
 // ===============================
 
 function showNeighbor(row){
@@ -9,31 +9,50 @@ function showNeighbor(row){
 
     if(!school){
 
-        alert("اطلاعات مدرسه یافت نشد.");
+        alert("اطلاعات این مدرسه پیدا نشد.");
 
         return;
 
     }
 
-    currentSchool = school;
+    const html = createCard(school);
 
-    const result =
-        document.getElementById("result");
+    document
+        .getElementById("modal-content")
+        .innerHTML = html;
 
-    result.innerHTML = createCard(school);
-
-    window.scrollTo({
-
-        top:0,
-
-        behavior:"smooth"
-
-    });
+    document
+        .getElementById("modal")
+        .classList.add("active");
 
 }
 
-function showSchool(row){
+function closeModal(){
 
-    showNeighbor(row);
+    document
+        .getElementById("modal")
+        .classList.remove("active");
 
 }
+
+document.addEventListener("click", function(e){
+
+    const modal = document.getElementById("modal");
+
+    if(e.target === modal){
+
+        closeModal();
+
+    }
+
+});
+
+document.addEventListener("keydown", function(e){
+
+    if(e.key === "Escape"){
+
+        closeModal();
+
+    }
+
+});
