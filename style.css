@@ -501,4 +501,34 @@ button:hover{
 
     }
 
+    .neshan-link{
+
+    display:inline-block;
+
+    background:#1E88E5;
+
+    color:#fff;
+
+    text-decoration:none;
+
+    padding:12px 20px;
+
+    border-radius:12px;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    transition:.25s;
+
+}
+
+.neshan-link:hover{
+
+    background:#1565C0;
+
+    transform:translateY(-2px);
+
+}
+    
 }
