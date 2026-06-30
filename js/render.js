@@ -103,6 +103,30 @@ function createCard(school){
 
         </div>
 
+        ${
+            school["لینک نشان"] ? `
+
+        <div class="info-box">
+
+            <strong>🗺️ موقعیت مدرسه</strong>
+
+            <br><br>
+
+            <a
+                href="${school["لینک نشان"]}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="neshan-link">
+
+                📍 مشاهده روی نشان
+
+            </a>
+
+        </div>
+
+        ` : ""
+        }
+
         <div class="info-box">
 
             <strong>🗺 محدوده ثبت نام</strong>
